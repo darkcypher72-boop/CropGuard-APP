@@ -1,304 +1,204 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
-import { useLanguage } from "./_layout";
+import { useEffect, useRef } from "react";
+import {
+  Animated,
+  Easing,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
 
-export default function CropManagement() {
+export default function SplashScreen() {
   const router = useRouter();
-  const { language } = useLanguage();
+  const { height } = useWindowDimensions();
 
-  const text = {
-    English: {
-      title: "Crop Management",
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.82)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const contentY = useRef(new Animated.Value(20)).current;
+  const progress = useRef(new Animated.Value(0)).current;
 
-      maize: "Maize",
-      cropStatus: "Growing • Vegetative Stage",
+  useEffect(() => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(logoOpacity, {
+          toValue: 1,
+          duration: 650,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(logoScale, {
+          toValue: 1,
+          friction: 7,
+          tension: 55,
+          useNativeDriver: true,
+        }),
+      ]),
 
-      growthStage: "Growth Stage",
-      vegetativeStage: "Vegetative Stage",
-      stageDescription:
-        "The crop is actively developing leaves and stems. Maintain proper moisture and nutrient availability.",
+      Animated.parallel([
+        Animated.timing(contentOpacity, {
+          toValue: 1,
+          duration: 550,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentY, {
+          toValue: 0,
+          duration: 550,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
 
-      todaysTasks: "Today's Crop Tasks",
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 2350,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    }).start();
 
-      checkIrrigation: "Check irrigation",
-      checkIrrigationDesc:
-        "Check soil moisture before irrigation.",
+    const timer = setTimeout(() => {
+      router.replace("/login");
+    }, 2700);
 
-      inspectGrowth: "Inspect crop growth",
-      inspectGrowthDesc:
-        "Look for abnormal leaves or slow growth.",
+    return () => clearTimeout(timer);
+  }, []);
 
-      checkPests: "Check for pests",
-      checkPestsDesc:
-        "Inspect leaves and stems for pest activity.",
+  const progressWidth = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
 
-      recommendation: "Crop Recommendation",
-      recommendationTitle: "Maintain healthy growth",
-      recommendationText:
-        "Monitor soil moisture, remove weeds around the crop and regularly inspect maize leaves for pests or disease symptoms.",
-    },
-
-    "हिन्दी": {
-      title: "फसल प्रबंधन",
-
-      maize: "मक्का",
-      cropStatus: "बढ़ रही है • वानस्पतिक अवस्था",
-
-      growthStage: "विकास अवस्था",
-      vegetativeStage: "वानस्पतिक अवस्था",
-      stageDescription:
-        "फसल में पत्तियों और तनों का सक्रिय विकास हो रहा है। उचित नमी और पोषक तत्वों की उपलब्धता बनाए रखें।",
-
-      todaysTasks: "आज के फसल कार्य",
-
-      checkIrrigation: "सिंचाई की जाँच करें",
-      checkIrrigationDesc:
-        "सिंचाई से पहले मिट्टी की नमी की जाँच करें।",
-
-      inspectGrowth: "फसल की वृद्धि की जाँच करें",
-      inspectGrowthDesc:
-        "असामान्य पत्तियों या धीमी वृद्धि की जाँच करें।",
-
-      checkPests: "कीटों की जाँच करें",
-      checkPestsDesc:
-        "पत्तियों और तनों पर कीटों की गतिविधि की जाँच करें।",
-
-      recommendation: "फसल सुझाव",
-      recommendationTitle: "स्वस्थ वृद्धि बनाए रखें",
-      recommendationText:
-        "मिट्टी की नमी पर नजर रखें, फसल के आसपास की खरपतवार हटाएँ और मक्का की पत्तियों में कीटों या रोग के लक्षणों की नियमित जाँच करें।",
-    },
-
-    "मराठी": {
-      title: "पीक व्यवस्थापन",
-
-      maize: "मका",
-      cropStatus: "वाढ होत आहे • शाकीय अवस्था",
-
-      growthStage: "वाढीची अवस्था",
-      vegetativeStage: "शाकीय अवस्था",
-      stageDescription:
-        "पिकामध्ये पाने आणि खोडांची सक्रिय वाढ होत आहे. योग्य ओलावा आणि पोषक घटकांची उपलब्धता राखा.",
-
-      todaysTasks: "आजची पीक कामे",
-
-      checkIrrigation: "सिंचन तपासा",
-      checkIrrigationDesc:
-        "सिंचन करण्यापूर्वी मातीतील ओलावा तपासा.",
-
-      inspectGrowth: "पिकाची वाढ तपासा",
-      inspectGrowthDesc:
-        "असामान्य पाने किंवा कमी वाढ आहे का ते तपासा.",
-
-      checkPests: "किडींची तपासणी करा",
-      checkPestsDesc:
-        "पाने आणि खोडांवर किडींची लक्षणे तपासा.",
-
-      recommendation: "पीक शिफारस",
-      recommendationTitle: "निरोगी वाढ राखा",
-      recommendationText:
-        "मातीतील ओलाव्यावर लक्ष ठेवा, पिकाभोवतीची तण काढा आणि मका पिकाच्या पानांवर किडी किंवा रोगाची लक्षणे आहेत का याची नियमित तपासणी करा.",
-    },
-  };
-
-  const currentText = text[language];
+  /*
+   * Keeps the layout comfortable on smaller phones.
+   */
+  const compact = height < 700;
 
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.replace("/home")}
-          style={styles.backButton}
+      {/* Subtle background shapes */}
+      <View style={styles.topShape} />
+      <View style={styles.bottomShape} />
+
+      {/* Small decorative crop/leaf marks */}
+      <View style={styles.decorativeLeafOne} />
+      <View style={styles.decorativeLeafTwo} />
+
+      <View
+        style={[
+          styles.content,
+          compact && styles.contentCompact,
+        ]}
+      >
+        {/* Logo */}
+        <Animated.View
+          style={[
+            styles.logoOuter,
+            {
+              opacity: logoOpacity,
+              transform: [{ scale: logoScale }],
+            },
+          ]}
         >
-          <Ionicons
-            name="chevron-back"
-            size={27}
-            color="#34783B"
-          />
-        </TouchableOpacity>
+          <View style={styles.logoBox}>
+            <Image
+              source={require("../../assets/images/cropguard-logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+        </Animated.View>
 
-        <Text style={styles.headerTitle}>
-          {currentText.title}
-        </Text>
+        {/* Brand content */}
+        <Animated.View
+          style={[
+            styles.brandContent,
+            {
+              opacity: contentOpacity,
+              transform: [{ translateY: contentY }],
+            },
+          ]}
+        >
+          <Text style={styles.title}>CropGuard</Text>
 
-        <View style={styles.headerSpacer} />
+          <View style={styles.accentRow}>
+            <View style={styles.accentLine} />
+            <View style={styles.accentDot} />
+            <View style={styles.accentLine} />
+          </View>
+
+          <Text style={styles.tagline}>
+            Protecting Crops.{"\n"}Empowering Farmers.
+          </Text>
+
+          <Text style={styles.description}>
+            Smart protection and guidance for{"\n"}
+            better maize farming.
+          </Text>
+
+          {/* Loading */}
+          <View style={styles.loadingContainer}>
+            <View style={styles.loadingTop}>
+              <Text style={styles.loadingLabel}>
+                Preparing your experience
+              </Text>
+
+              <Text style={styles.loadingStatus}>
+                SECURE
+              </Text>
+            </View>
+
+            <View style={styles.progressTrack}>
+              <Animated.View
+                style={[
+                  styles.progressBar,
+                  { width: progressWidth },
+                ]}
+              />
+            </View>
+
+            <View style={styles.loadingBottom}>
+              <Text style={styles.loadingHint}>
+                Please wait
+              </Text>
+
+              <View style={styles.loadingDots}>
+                <View style={styles.dot} />
+                <View style={[styles.dot, styles.dotMiddle]} />
+                <View style={styles.dot} />
+              </View>
+            </View>
+          </View>
+        </Animated.View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
+      {/* Footer */}
+      <View style={styles.footer}>
+        <View style={styles.footerTop}>
+          <View style={styles.footerLine} />
 
-        {/* Crop Header */}
-        <View style={styles.cropCard}>
-          <View style={styles.cropIconBox}>
-            <Ionicons
-              name="leaf-outline"
-              size={34}
-              color="#34783B"
-            />
-          </View>
-
-          <View style={styles.cropInfo}>
-            <Text style={styles.cropName}>
-              {currentText.maize}
-            </Text>
-
-            <Text style={styles.cropStatus}>
-              {currentText.cropStatus}
-            </Text>
-          </View>
-        </View>
-
-        {/* Growth Stage */}
-        <Text style={styles.sectionTitle}>
-          {currentText.growthStage}
-        </Text>
-
-        <View style={styles.stageCard}>
-          <View style={styles.stageTop}>
-            <Text style={styles.stageName}>
-              {currentText.vegetativeStage}
-            </Text>
-
-            <Text style={styles.stagePercent}>
-              55%
-            </Text>
-          </View>
-
-          <View style={styles.progressBackground}>
-            <View style={styles.progressFill} />
-          </View>
-
-          <Text style={styles.stageDescription}>
-            {currentText.stageDescription}
+          <Text style={styles.team}>
+            TEAM ASTRAL
           </Text>
+
+          <View style={styles.footerLine} />
         </View>
 
-        {/* Today's Tasks */}
-        <Text style={styles.sectionTitle}>
-          {currentText.todaysTasks}
+        <Text style={styles.footerMain}>
+          CropGuard
         </Text>
 
-        {/* Irrigation */}
-        <View style={styles.taskCard}>
-          <View style={styles.taskIcon}>
-            <Ionicons
-              name="water-outline"
-              size={23}
-              color="#34783B"
-            />
-          </View>
-
-          <View style={styles.taskContent}>
-            <Text style={styles.taskTitle}>
-              {currentText.checkIrrigation}
-            </Text>
-
-            <Text style={styles.taskDescription}>
-              {currentText.checkIrrigationDesc}
-            </Text>
-          </View>
-
-          <Ionicons
-            name="ellipse-outline"
-            size={25}
-            color="#7B897C"
-          />
-        </View>
-
-        {/* Crop Growth */}
-        <View style={styles.taskCard}>
-          <View style={styles.taskIcon}>
-            <Ionicons
-              name="leaf-outline"
-              size={23}
-              color="#34783B"
-            />
-          </View>
-
-          <View style={styles.taskContent}>
-            <Text style={styles.taskTitle}>
-              {currentText.inspectGrowth}
-            </Text>
-
-            <Text style={styles.taskDescription}>
-              {currentText.inspectGrowthDesc}
-            </Text>
-          </View>
-
-          <Ionicons
-            name="ellipse-outline"
-            size={25}
-            color="#7B897C"
-          />
-        </View>
-
-        {/* Pest Check */}
-        <View style={styles.taskCard}>
-          <View style={styles.taskIcon}>
-            <Ionicons
-              name="search-outline"
-              size={23}
-              color="#34783B"
-            />
-          </View>
-
-          <View style={styles.taskContent}>
-            <Text style={styles.taskTitle}>
-              {currentText.checkPests}
-            </Text>
-
-            <Text style={styles.taskDescription}>
-              {currentText.checkPestsDesc}
-            </Text>
-          </View>
-
-          <Ionicons
-            name="ellipse-outline"
-            size={25}
-            color="#7B897C"
-          />
-        </View>
-
-        {/* Farming Recommendation */}
-        <Text style={styles.sectionTitle}>
-          {currentText.recommendation}
+        <Text style={styles.footerSub}>
+          Maize Protection Platform
         </Text>
-
-        <View style={styles.recommendationCard}>
-          <View style={styles.recommendationIconBox}>
-            <Ionicons
-              name="nutrition-outline"
-              size={27}
-              color="#34783B"
-            />
-          </View>
-
-          <View style={styles.recommendationContent}>
-            <Text style={styles.recommendationTitle}>
-              {currentText.recommendationTitle}
-            </Text>
-
-            <Text style={styles.recommendationText}>
-              {currentText.recommendationText}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.bottomSpace} />
-
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -306,205 +206,258 @@ export default function CropManagement() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7FAF5",
-  },
-
-  header: {
-    height: 65,
-    backgroundColor: "#FFFFFF",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E7ECE6",
-  },
-
-  backButton: {
-    width: 40,
-    height: 40,
+    backgroundColor: "#F8FBF7",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#245C2A",
-  },
-
-  headerSpacer: {
-    width: 40,
-  },
-
-  content: {
-    padding: 20,
-  },
-
-  cropCard: {
-    backgroundColor: "#DDEFD9",
-    borderRadius: 20,
-    padding: 18,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  cropIconBox: {
-    width: 62,
-    height: 62,
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  cropInfo: {
-    marginLeft: 15,
-    flex: 1,
-  },
-
-  cropName: {
-    fontSize: 21,
-    fontWeight: "800",
-    color: "#245C2A",
-  },
-
-  cropStatus: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#607060",
-  },
-
-  sectionTitle: {
-    marginTop: 24,
-    marginBottom: 12,
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#263C29",
-  },
-
-  stageCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 17,
-    elevation: 2,
-  },
-
-  stageTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  stageName: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#304632",
-  },
-
-  stagePercent: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#34783B",
-  },
-
-  progressBackground: {
-    height: 9,
-    backgroundColor: "#E5ECE3",
-    borderRadius: 10,
-    marginTop: 12,
     overflow: "hidden",
   },
 
-  progressFill: {
-    width: "55%",
-    height: "100%",
-    backgroundColor: "#4C944F",
-    borderRadius: 10,
+  /* Background */
+
+  topShape: {
+    position: "absolute",
+    width: 290,
+    height: 290,
+    borderRadius: 145,
+    backgroundColor: "#EDF6EA",
+    top: -190,
+    right: -115,
   },
 
-  stageDescription: {
+  bottomShape: {
+    position: "absolute",
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: "#F0F7EE",
+    bottom: -175,
+    left: -130,
+  },
+
+  decorativeLeafOne: {
+    position: "absolute",
+    width: 7,
+    height: 24,
+    borderRadius: 8,
+    backgroundColor: "#DCEBD9",
+    top: "24%",
+    left: 25,
+    transform: [{ rotate: "-32deg" }],
+  },
+
+  decorativeLeafTwo: {
+    position: "absolute",
+    width: 6,
+    height: 19,
+    borderRadius: 8,
+    backgroundColor: "#E2EFDF",
+    top: "29%",
+    right: 28,
+    transform: [{ rotate: "30deg" }],
+  },
+
+  /* Main content */
+
+  content: {
+    width: "100%",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    marginTop: -25,
+  },
+
+  contentCompact: {
+    marginTop: -12,
+  },
+
+  logoOuter: {
+    marginBottom: 22,
+  },
+
+  logoBox: {
+    width: 122,
+    height: 122,
+    borderRadius: 36,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+
+    elevation: 6,
+
+    shadowColor: "#214E27",
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.10,
+    shadowRadius: 14,
+  },
+
+  logo: {
+    width: 88,
+    height: 88,
+  },
+
+  /* Brand */
+
+  brandContent: {
+    width: "100%",
+    alignItems: "center",
+  },
+
+  title: {
+    fontSize: 38,
+    lineHeight: 45,
+    fontWeight: "800",
+    color: "#23592A",
+    letterSpacing: 0.2,
+  },
+
+  accentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 11,
+    marginBottom: 14,
+  },
+
+  accentLine: {
+    width: 19,
+    height: 1,
+    backgroundColor: "#A9C5A9",
+  },
+
+  accentDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#4D8954",
+    marginHorizontal: 6,
+  },
+
+  tagline: {
+    textAlign: "center",
+    fontSize: 17,
+    lineHeight: 25,
+    fontWeight: "600",
+    color: "#4E624F",
+    letterSpacing: 0.1,
+  },
+
+  description: {
     marginTop: 12,
-    fontSize: 12,
-    lineHeight: 18,
-    color: "#788378",
+    textAlign: "center",
+    fontSize: 13,
+    lineHeight: 20,
+    color: "#7A887B",
+    fontWeight: "400",
   },
 
-  taskCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 17,
-    padding: 15,
-    marginBottom: 11,
+  /* Loading */
+
+  loadingContainer: {
+    width: "88%",
+    marginTop: 43,
+  },
+
+  loadingTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 9,
+  },
+
+  loadingLabel: {
+    fontSize: 11.5,
+    color: "#718071",
+    fontWeight: "500",
+  },
+
+  loadingStatus: {
+    fontSize: 8.5,
+    letterSpacing: 1.2,
+    color: "#628066",
+    fontWeight: "700",
+  },
+
+  progressTrack: {
+    width: "100%",
+    height: 6,
+    borderRadius: 10,
+    backgroundColor: "#DFE9DF",
+    overflow: "hidden",
+  },
+
+  progressBar: {
+    height: "100%",
+    borderRadius: 10,
+    backgroundColor: "#4D8954",
+  },
+
+  loadingBottom: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  loadingHint: {
+    fontSize: 10,
+    color: "#99A49A",
+  },
+
+  loadingDots: {
     flexDirection: "row",
     alignItems: "center",
-    elevation: 1,
   },
 
-  taskIcon: {
-    width: 43,
-    height: 43,
-    borderRadius: 13,
-    backgroundColor: "#EDF6EA",
+  dot: {
+    width: 3,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "#A5B6A5",
+  },
+
+  dotMiddle: {
+    marginHorizontal: 3,
+  },
+
+  /* Footer */
+
+  footer: {
+    position: "absolute",
+    bottom: 27,
     alignItems: "center",
-    justifyContent: "center",
   },
 
-  taskContent: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 8,
+  footerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 9,
   },
 
-  taskTitle: {
-    fontSize: 14,
+  footerLine: {
+    width: 23,
+    height: 1,
+    backgroundColor: "#CCD9CC",
+    marginHorizontal: 9,
+  },
+
+  team: {
+    fontSize: 9.5,
     fontWeight: "800",
-    color: "#304632",
+    letterSpacing: 2,
+    color: "#527257",
   },
 
-  taskDescription: {
+  footerMain: {
+    fontSize: 10.5,
+    fontWeight: "600",
+    color: "#78877A",
+  },
+
+  footerSub: {
     marginTop: 3,
-    fontSize: 11,
-    lineHeight: 16,
-    color: "#788378",
-  },
-
-  recommendationCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 17,
-    flexDirection: "row",
-    elevation: 1,
-  },
-
-  recommendationIconBox: {
-    width: 47,
-    height: 47,
-    borderRadius: 14,
-    backgroundColor: "#EDF6EA",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 13,
-  },
-
-  recommendationContent: {
-    flex: 1,
-  },
-
-  recommendationTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#304632",
-  },
-
-  recommendationText: {
-    marginTop: 6,
-    fontSize: 12,
-    lineHeight: 18,
-    color: "#788378",
-  },
-
-  bottomSpace: {
-    height: 30,
+    fontSize: 9.5,
+    color: "#A0AAA1",
   },
 });
+
